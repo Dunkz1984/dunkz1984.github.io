@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini SCAAT Practice Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timer-display {
+            font-size: 2em;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            color: #444;
+            font-weight: 500;
+        }
+
+        .target-display {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .test-area {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .character-line {
+            margin-bottom: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.3;
+            user-select: none;
+            white-space: pre;
+        }
+
+        .character {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            background: transparent;
+        }
+
+        .character.crossed-out {
+            text-decoration: line-through;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            margin: 10px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .next-test-btn {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: #333;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .results {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .results h2 {
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .test-type {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .test-progress {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mini SCAAT Practice Test</h1>
+        
+        <div class="timer-display" id="timer">2:00</div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-value" id="correct-count">0</span>
+                <span class="stat-label">Correct</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="incorrect-count">0</span>
+                <span class="stat-label">Mistakes</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="accuracy">100%</span>
+                <span class="stat-label">Accuracy</span>
+            </div>
+        </div>
+
+        <div class="instructions" id="instructions">
+            <strong>Mini SCAAT Practice Test</strong><br>
+            <strong>Test 1:</strong> Locate single character (2 minutes)<br>
+            <strong>Test 2:</strong> Locate two characters (2 minutes)<br>
+            <strong>Test 3:</strong> Locate character + first character in list (3 minutes)<br><br>
+            Click characters to cross them out. Click again to undo.
+        </div>
+
+        <div class="test-progress hidden" id="test-progress">Test 1 of 3</div>
+        <div class="test-type hidden" id="test-type"></div>
+        <div class="target-display hidden" id="target-display"></div>
+        
+        <div class="test-area hidden" id="test-area"></div>
+
+        <button class="control-btn start-btn" id="start-btn" onclick="startTest()">Start Test 1</button>
+        <button class="control-btn next-test-btn hidden" id="next-test-btn" onclick="nextTest()">Next Test</button>
+        <button class="control-btn restart-btn hidden" id="restart-btn" onclick="restartTest()">Restart All Tests</button>
+
+        <div class="results hidden" id="results">
+            <h2>Test Results</h2>
+            <div id="final-stats"></div>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 120;
+        let timer = null;
+        let testActive = false;
+        let currentTestNumber = 1;
+        let correctClicks = 0;
+        let incorrectClicks = 0;
+        let currentTargets = [];
+        let testResults = [];
+        let clickedCharacters = new Set();
+        let totalPossibleCorrect = 0;
+        let misclicks = 0;
+        let completedLines = 0;
+
+        const characters = ['[', ']', '(', ')', '((', '))', 'C', '{', '}'];
+        
+        const testTypes = [
+            {
+                name: "Test 1: Locate the Character",
+                description: "Find and click all instances of the target character",
+                duration: 120,
+                type: "single"
+            },
+            {
+                name: "Test 2: Locate Two Characters", 
+                description: "Find and click all instances of both target characters",
+                duration: 120,
+                type: "double"
+            },
+            {
+                name: "Test 3: Character + First in List",
+                description: "Click the target character, then click the first character in each line",
+                duration: 180,
+                type: "sequence"
+            }
+        ];
+
+        function generateCharacterLines() {
+            const lines = [];
+            for (let i = 0; i < 40; i++) {
+                const line = [];
+                for (let j = 0; j < 22; j++) {
+                    line.push(characters[Math.floor(Math.random() * characters.length)]);
+                }
+                lines.push(line);
+            }
+            return lines;
+        }
+
+        function startTest() {
+            if (currentTestNumber > 3) {
+                showFinalResults();
+                return;
+            }
+
+            const testType = testTypes[currentTestNumber - 1];
+            timeLeft = testType.duration;
+            testActive = true;
+            correctClicks = 0;
+            incorrectClicks = 0;
+            misclicks = 0;
+            completedLines = 0;
+            clickedCharacters.clear();
+            
+            document.getElementById('start-btn').classList.add('hidden');
+            document.getElementById('next-test-btn').classList.add('hidden');
+            document.getElementById('restart-btn').classList.remove('hidden');
+            document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('test-progress').classList.remove('hidden');
+            document.getElementById('test-type').classList.remove('hidden');
+            document.getElementById('target-display').classList.remove('hidden');
+            document.getElementById('test-area').classList.remove('hidden');
+            
+            document.getElementById('test-progress').textContent = `Test ${currentTestNumber} of 3`;
+            document.getElementById('test-type').textContent = testType.name;
+            
+            // Generate targets
+            if (testType.type === 'single') {
+                const target = characters[Math.floor(Math.random() * characters.length)];
+                currentTargets = [target];
+                document.getElementById('target-display').innerHTML = `<strong>Find all:</strong> ${target}`;
+            } else if (testType.type === 'double') {
+                const target1 = characters[Math.floor(Math.random() * characters.length)];
+                let target2 = characters[Math.floor(Math.random() * characters.length)];
+                while (target2 === target1) {
+                    target2 = characters[Math.floor(Math.random() * characters.length)];
+                }
+                currentTargets = [target1, target2];
+                document.getElementById('target-display').innerHTML = `<strong>Find all:</strong> ${target1} and ${target2}`;
+            } else if (testType.type === 'sequence') {
+                const target = characters[Math.floor(Math.random() * characters.length)];
+                currentTargets = [target, 'FIRST']; // Special marker for first character
+                document.getElementById('target-display').innerHTML = `<strong>Find all:</strong> ${target} <strong>and</strong> the first character of each line`;
+            }
+            
+            generateTestContent();
+            startTimer();
+        }
+
+        function generateTestContent() {
+            const lines = generateCharacterLines();
+            const testArea = document.getElementById('test-area');
+            testArea.innerHTML = '';
+            totalPossibleCorrect = 0;
+            
+            lines.forEach((line, lineIndex) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'character-line';
+                
+                // Count correct answers for this line
+                const testType = testTypes[currentTestNumber - 1];
+                let correctInLine = 0;
+                
+                if (testType.type === 'single') {
+                    correctInLine = line.filter(char => char === currentTargets[0]).length;
+                } else if (testType.type === 'double') {
+                    correctInLine = line.filter(char => currentTargets.includes(char)).length;
+                } else if (testType.type === 'sequence') {
+                    // Count target character + first character of line
+                    correctInLine = line.filter(char => char === currentTargets[0]).length + 1; // +1 for first char
+                }
+                
+                totalPossibleCorrect += correctInLine;
+                
+                let lineText = '';
+                line.forEach((char, charIndex) => {
+                    lineText += char;
+                    if (charIndex < line.length - 1) {
+                        lineText += '  '; // Two spaces between characters
+                    }
+                });
+                
+                // Create clickable spans for each character position
+                let currentPos = 0;
+                line.forEach((char, charIndex) => {
+                    const charSpan = document.createElement('span');
+                    charSpan.className = 'character';
+                    charSpan.textContent = char;
+                    charSpan.dataset.line = lineIndex;
+                    charSpan.dataset.position = charIndex;
+                    charSpan.dataset.char = char;
+                    charSpan.onclick = () => handleCharacterClick(charSpan, lineIndex, charIndex, char);
+                    charSpan.style.left = currentPos + 'ch';
+                    charSpan.style.position = 'relative';
+                    lineDiv.appendChild(charSpan);
+                    
+                    currentPos += 3; // Character + 2 spaces
+                });
+                
+                testArea.appendChild(lineDiv);
+            });
+        }
+
+        function handleCharacterClick(element, lineIndex, charIndex, char) {
+            if (!testActive) return;
+            
+            const clickId = `${lineIndex}-${charIndex}`;
+            const testType = testTypes[currentTestNumber - 1];
+            
+            // Toggle crossed-out state
+            if (element.classList.contains('crossed-out')) {
+                element.classList.remove('crossed-out');
+                clickedCharacters.delete(clickId);
+                misclicks++; // Count as misclick (clicked then unclicked)
+            } else {
+                element.classList.add('crossed-out');
+                clickedCharacters.add(clickId);
+                
+                // Determine if this is correct (but don't show visually)
+                let isCorrect = false;
+                if (testType.type === 'single') {
+                    isCorrect = char === currentTargets[0];
+                } else if (testType.type === 'double') {
+                    isCorrect = currentTargets.includes(char);
+                } else if (testType.type === 'sequence') {
+                    // Correct if it's the target character OR the first character of the line
+                    isCorrect = char === currentTargets[0] || charIndex === 0;
+                }
+                
+                if (isCorrect) {
+                    correctClicks++;
+                } else {
+                    incorrectClicks++;
+                }
+            }
+            
+            // Count completed lines (lines where user has clicked at least one character)
+            updateCompletedLines();
+            updateStats();
+        }
+        
+        function updateCompletedLines() {
+            const linesWithClicks = new Set();
+            clickedCharacters.forEach(clickId => {
+                const lineIndex = clickId.split('-')[0];
+                linesWithClicks.add(lineIndex);
+            });
+            completedLines = linesWithClicks.size;
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    endCurrentTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 30) {
+                document.getElementById('timer').classList.add('pulse');
+            } else {
+                document.getElementById('timer').classList.remove('pulse');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('correct-count').textContent = correctClicks;
+            document.getElementById('incorrect-count').textContent = incorrectClicks;
+            
+            const total = correctClicks + incorrectClicks;
+            const accuracy = total > 0 ? Math.round((correctClicks / total) * 100) : 100;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        function endCurrentTest() {
+            testActive = false;
+            clearInterval(timer);
+            
+            // Store test results
+            const total = correctClicks + incorrectClicks;
+            const accuracy = total > 0 ? Math.round((correctClicks / total) * 100) : 100;
+            const testType = testTypes[currentTestNumber - 1];
+            
+            testResults.push({
+                testNumber: currentTestNumber,
+                testName: testType.name,
+                correct: correctClicks,
+                incorrect: incorrectClicks,
+                misclicks: misclicks,
+                total: correctClicks + incorrectClicks,
+                totalPossible: totalPossibleCorrect,
+                completedLines: completedLines,
+                accuracy: totalPossibleCorrect > 0 ? Math.round((correctClicks / totalPossibleCorrect) * 100) : 0,
+                duration: testType.duration
+            });
+            
+            // Show next test button or finish
+            if (currentTestNumber < 3) {
+                document.getElementById('next-test-btn').classList.remove('hidden');
+                document.getElementById('start-btn').textContent = `Start Test ${currentTestNumber + 1}`;
+            } else {
+                showFinalResults();
+            }
+        }
+
+        function nextTest() {
+            currentTestNumber++;
+            document.getElementById('test-area').classList.add('hidden');
+            document.getElementById('target-display').classList.add('hidden');
+            document.getElementById('test-type').classList.add('hidden');
+            document.getElementById('test-progress').classList.add('hidden');
+            document.getElementById('next-test-btn').classList.add('hidden');
+            document.getElementById('start-btn').classList.remove('hidden');
+            document.getElementById('instructions').classList.remove('hidden');
+            
+            // Reset stats display
+            correctClicks = 0;
+            incorrectClicks = 0;
+            misclicks = 0;
+            completedLines = 0;
+            updateStats();
+        }
+
+        function showFinalResults() {
+            document.getElementById('test-area').classList.add('hidden');
+            document.getElementById('target-display').classList.add('hidden');
+            document.getElementById('test-type').classList.add('hidden');
+            document.getElementById('test-progress').classList.add('hidden');
+            document.getElementById('next-test-btn').classList.add('hidden');
+            document.getElementById('start-btn').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            
+            let totalCorrect = 0;
+            let totalIncorrect = 0;
+            let totalMisclicks = 0;
+            let totalPossible = 0;
+            let totalLinesCompleted = 0;
+            let resultsHTML = '<h3>Individual Test Results:</h3>';
+            
+            testResults.forEach(result => {
+                totalCorrect += result.correct;
+                totalIncorrect += result.incorrect;
+                totalMisclicks += result.misclicks;
+                totalPossible += result.totalPossible;
+                totalLinesCompleted += result.completedLines;
+                
+                resultsHTML += `
+                    <p><strong>${result.testName}:</strong> 
+                    ${result.correct}/${result.totalPossible} correct (${result.accuracy}%), 
+                    ${result.incorrect} incorrect, ${result.misclicks} misclicks, 
+                    ${result.completedLines}/40 lines completed</p>
+                `;
+            });
+            
+            const overallAccuracy = totalPossible > 0 ? Math.round((totalCorrect / totalPossible) * 100) : 0;
+            
+            resultsHTML += `
+                <h3>Overall Results:</h3>
+                <p><strong>Score:</strong> ${totalCorrect}/${totalPossible} (${overallAccuracy}%)</p>
+                <p><strong>Incorrect Answers:</strong> ${totalIncorrect}</p>
+                <p><strong>Misclicks:</strong> ${totalMisclicks}</p>
+                <p><strong>Total Lines Completed:</strong> ${totalLinesCompleted}/120</p>
+                <p><strong>Average Lines per Test:</strong> ${Math.round(totalLinesCompleted/3)}/40</p>
+            `;
+            
+            document.getElementById('final-stats').innerHTML = resultsHTML;
+        }
+
+        function restartTest() {
+            currentTestNumber = 1;
+            testResults = [];
+            correctClicks = 0;
+            incorrectClicks = 0;
+            misclicks = 0;
+            completedLines = 0;
+            timeLeft = 120;
+            testActive = false;
+            clickedCharacters.clear();
+            
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            
+            document.getElementById('timer').textContent = '2:00';
+            document.getElementById('timer').classList.remove('pulse');
+            updateStats();
+            
+            // Reset display
+            document.getElementById('restart-btn').classList.add('hidden');
+            document.getElementById('next-test-btn').classList.add('hidden');
+            document.getElementById('test-type').classList.add('hidden');
+            document.getElementById('target-display').classList.add('hidden');
+            document.getElementById('test-area').classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('test-progress').classList.add('hidden');
+            
+            document.getElementById('start-btn').classList.remove('hidden');
+            document.getElementById('start-btn').textContent = 'Start Test 1';
+            document.getElementById('instructions').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
